@@ -22,22 +22,26 @@ architecture rtl of Reloj is
     signal cont_decenas : std_logic_vector(3 downto 0) := (others => '0');
     
 begin
-    process(clk, rst, contador, cont_unidades)
+    process(clk, rst)
     begin
         if rst = '1' then
             contador <= (others => '0');
             cont_unidades <= (others => '0');
-        else
-            if rising_edge(clk) then
-                if contador < periodo_1s then
-                    contador <= contador + 1;
-                    cont_unidades <= cont_unidades;
+            cont_decenas <= (others => '0');
+        elsif rising_edge(clk) then
+            if contador < periodo_1s then
+                contador <= contador + 1;
+            else
+                contador <= (others => '0');
+                
+                if cont_unidades < "1001" then  -- 0 a 9
+                    cont_unidades <= cont_unidades + 1;
                 else
-                    contador <= (others => '0');
-                    if cont_unidades < X"9" then
-                        cont_unidades <= cont_unidades + 1;
+                    cont_unidades <= (others => '0');
+                    if cont_decenas < "0101" then  -- 0 a 5
+                        cont_decenas <= cont_decenas + 1;
                     else
-                        cont_unidades <= (others => '0');
+                        cont_decenas <= (others => '0');
                     end if;
                 end if;
             end if;
@@ -45,7 +49,7 @@ begin
     end process;
 
     clk_ext <= contador(12);
-
     unidades <= cont_unidades;
-    decenas <= (others => '0');
+    decenas <= cont_decenas;
+    
 end rtl;
